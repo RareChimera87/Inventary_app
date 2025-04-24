@@ -5,7 +5,7 @@ router = APIRouter()
 
 class Product(BaseModel):
     name: str
-    description: list
+    description: str
     price: float
     quantity: int
 
@@ -23,7 +23,7 @@ class Product(BaseModel):
 
 prueba_producto = {
     'name': 'Pan',
-    'description': ["bonito, util"],
+    'description': "util",
     'price': -10,
     'quantity': 1
 }
