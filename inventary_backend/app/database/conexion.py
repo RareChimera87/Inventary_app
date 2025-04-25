@@ -1,8 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base
-from app.models.product import Product
-
-Base = declarative_base()
+from sqlalchemy.orm import declarative_base, sessionmaker, Mapped, mapped_column
 
 url_db = sa.URL.create(
     "postgresql+psycopg2",
@@ -12,11 +9,39 @@ url_db = sa.URL.create(
     database="inventary_app",
 )
 
-engine = sa.create_engine(url_db)
+engine = sa.create_engine("postgresql://postgres:Cata2013@localhost:5432/inventary_app")
+print(engine)
+Session = sessionmaker(bind=engine)
+Base = declarative_base()
 
-# Conexión opcional (si necesitas una conexión directa en algún momento)
-def get_connection():
-    return engine.connect()
 
-def close_connection(connection):
-    connection.close()  # Cierra la conexión cuando ya no la necesites
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    description: Mapped[str]
+    price: Mapped[int]
+    quantity: Mapped[int]
+
+    def __repr__(self) -> str:
+        return f"<Product(id={self.id}, name={self.name}, description={self.description}, price={self.price}, quantity={self.quantity})>"
+
+
+
+def main() -> None:
+    Base.metadata.create_all(engine)
+    producto = Product(id=0, name="pruebas", description="mas prueba", price=10, quantity=100)
+
+    with Session() as session:
+        session.add(producto)
+
+        session.commit()
+        print("Producto insertado")
+
+        print(session.query(Product).all())
+        print("Consulta:", session.query(Product).all())
+
+if __name__ == "__main__":
+    main()
