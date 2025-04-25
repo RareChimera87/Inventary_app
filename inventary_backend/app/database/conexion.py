@@ -1,38 +1,31 @@
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base, sessionmaker, Mapped, mapped_column
+from sqlalchemy.orm import declarative_base, sessionmaker
+from app.models.product import Product
+from dotenv import load_dotenv
+import os
 
-url_db = sa.URL.create(
-    "postgresql+psycopg2",
-    username="postgres",
-    password="Cata2013", 
-    host="localhost",
-    database="inventary_app",
-)
+load_dotenv()
 
-engine = sa.create_engine("postgresql://postgres:Cata2013@localhost:5432/inventary_app")
-print(engine)
+DBDVR = os.getenv("DBDVR")
+USER = os.getenv("USER")
+PASS = os.getenv("PASS")
+HOST = os.getenv("HOSTNAME")
+PORT = os.getenv("DBPORT")
+DB = os.getenv("DB")
+
+
+url_db = DBDVR + "://" + USER + ":" + PASS + "@" + HOST + ":" + PORT + "/" + DB
+
+engine = sa.create_engine(url_db)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
 
-class Product(Base):
-    __tablename__ = "products"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
-    description: Mapped[str]
-    price: Mapped[int]
-    quantity: Mapped[int]
-
-    def __repr__(self) -> str:
-        return f"<Product(id={self.id}, name={self.name}, description={self.description}, price={self.price}, quantity={self.quantity})>"
-
-
 
 def main() -> None:
     Base.metadata.create_all(engine)
-    producto = Product(id=0, name="pruebas", description="mas prueba", price=10, quantity=100)
+    producto = Product(name="pruebas3", description="mas prueba2", price=102, quantity=1002)
 
     with Session() as session:
         session.add(producto)
@@ -43,5 +36,4 @@ def main() -> None:
         print(session.query(Product).all())
         print("Consulta:", session.query(Product).all())
 
-if __name__ == "__main__":
-    main()
+
