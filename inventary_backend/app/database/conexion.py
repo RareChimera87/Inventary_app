@@ -2,6 +2,7 @@
 
 import sqlalchemy as sa
 from sqlalchemy.orm import declarative_base, sessionmaker, Mapped, mapped_column, relationship
+from fastapi import HTTPException
 from dotenv import load_dotenv
 import os
 import pytz
@@ -38,6 +39,10 @@ class Product(Base):
     description: Mapped[str]
     price: Mapped[int]
     quantity: Mapped[int]
+    SKU: Mapped[int]
+    minim_stock: Mapped[int]
+    state: Mapped[bool]
+    category: Mapped[str]
 
     supplier_id: Mapped[int] = mapped_column(sa.ForeignKey("suppliers.id"))
 
@@ -71,7 +76,7 @@ def main() -> None:
     
     supplier = Suppliers(name="Proveedor A", address="Dirección A", phone="123456789", email="proveedor@a.com", preferred_payment_method="NEQUI")
 
-    product = Product(name="Producto A", description="Descripción del producto A", price=100, quantity=50, supplier_id=supplier.id)
+    product = Product(name="Producto A", description="Descripción del producto A", price=100, quantity=50, SKU=11111, minim_stock=10, state=True, category="Panaderia",supplier_id=supplier.id)
 
     product.supplier = supplier
     
@@ -92,5 +97,8 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"No se pudo conectar a la base de datos: {e}")
     finally:
         db.close()
+    
